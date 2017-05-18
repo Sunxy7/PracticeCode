@@ -21,8 +21,9 @@ void PushBack(pLinkList plist,DataType data);
 void PopFront(pLinkList plist);
 void PopBack(pLinkList plist);
 void Remove(pLinkList plist,DataType data);
+void RemoveAll(pLinkList plist, DataType data);
 void PrintList(pLinkList plist);
-void ReverPrintList(pLinkList plist);
+void ReverPrintList(pListNode head);
 
 
 
