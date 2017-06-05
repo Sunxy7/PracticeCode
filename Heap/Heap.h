@@ -1,55 +1,123 @@
 #pragma once
 #include<iostream>
+#include<vector>
 using namespace std;
-void AdjustHeap(int arr[],int i)//插入节点i
+
+//利用仿函数提高代码复用性
+template<class T=int>
+class Greater
 {
-	int j = (i - 1) / 2;//父节点下标
-	int tmp = arr[i];
-	while (j>=0 && i!=0)
+	bool operator()(T a, T b)
 	{
-		if (tmp > arr[j])
-			break;
-		arr[i] = arr[j];
-		i = j;
-		j = (i - 1) / 2;
+		return a > b;
 	}
-	arr[i] = tmp;
-}
-void AdjustDown(int arr[],int i,int n)//删除节点i，共有n个节点
+};
+template<class T=int>
+class Less
 {
-	int j = i * 2 + 1;//父节点
-	int tmp = arr[i];
-	while (j<n)
+	bool operator()(T a, T b)
 	{
-		if (arr[j] > arr[j + 1])//子节点中找较小的
+		return a < b;
+	}
+};
+template<class T,class Compare=Less<T>>//默认建小堆
+class Heap
+{
+public:
+	Heap()
+	{}
+	Heap(int *arr, int n)//建堆
+	{
+		int i = 0;
+		heap.reserve(n);
+		for (i = 0; i < n; i++)//将数组中元素插入堆
 		{
-			j++;
+			heap.push_back(arr[i]);
 		}
-		if (tmp < arr[j])
+		for (i = (n - 2) / 2; i < n; i--)//从第一个非叶子结点开始调整
 		{
-			break;
+			AdjustDown(i);
 		}
-		arr[i] = arr[j];
-		i = j;
-		j = i * 2 + 1;
 	}
-	arr[i] = tmp;
-}
-void Insert(int arr[],int i,int num)
-{
-	arr[i] = num;
-	AdjustHeap(arr, i);
-}
-void Delete(int arr[], int n)
-{
-	swap(arr[0], arr[n - 1]);
-	AdjustDown(arr,0,n);
-}
-void MakeHeap(int arr[], int n)
-{
-	int i = 0;
-	for (i = n / 2 - 1; i >= 0; i--)//((n-1)*2)+1 =n/2-1
+	void AdjustUp(int child)//向上调整算法
 	{
-		AdjustDown(arr, i, n);
+		int father = (child - 1) / 2;
+		while (father >= 0)
+		{
+			if (!Compare()(heap[father], heap[child]))
+			{
+				swap(heap[father], heap[child]);
+			}
+			child = father;
+			father = (child - 1) / 2;
+		}
 	}
-}
+	void AdjustDown(int root)//向下调整算法
+	{
+		int child = root * 2 + 1;
+		while (child <= heap.size())
+		{
+			if (Compare(heap[child + 1], heap[child]) && child+1<heap.size())
+			{
+				child++;
+			}
+			if (Compare(heap[child], heap[root]))
+			{
+				swap(heap[child], heap[root]);
+			}
+			else
+			{
+				break;
+			}
+			root = child;
+			child = root * 2 + 1;
+		}
+
+	}
+	void Push(int data)//插入元素
+	{
+		heap.push_back(data);
+		AdjustUp(heap.size() - 1);
+	}
+	void Pop()//删除元素
+	{
+		//将最后一个元素与堆顶元素交换，删除最后一个元素，调整堆
+		if (heap.size() == 1)//如果只有一个元素，直接删除
+		{
+			heap.pop_back();
+		}
+		else
+		{
+			swap(heap[0], heap[heap.size() - 1]);
+			heap.pop_back();
+			AdjustDown(0);
+		}
+	}
+	
+	T Top()//返回堆顶元素
+	{
+		return heap[0];
+	}
+	int Size()//堆大小
+	{
+		return heap.size();
+	}
+	bool IsEmpty()//判断堆是否为空
+	{
+		return heap.size() == 0;
+	}
+	void PrintHeap()//打印堆元素
+	{
+		int i = 0;
+		for (i = 0; i < heap.size(); i++)
+		{
+			cout << heap[i] << " ";
+		}
+		cout << endl;
+	}
+
+
+private:
+	vector<int> heap;
+	
+};
