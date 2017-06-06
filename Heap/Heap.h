@@ -7,6 +7,7 @@ using namespace std;
 template<class T=int>
 class Greater
 {
+public:
 	bool operator()(T a, T b)
 	{
 		return a > b;
@@ -15,6 +16,7 @@ class Greater
 template<class T=int>
 class Less
 {
+public:
 	bool operator()(T a, T b)
 	{
 		return a < b;
@@ -34,7 +36,7 @@ public:
 		{
 			heap.push_back(arr[i]);
 		}
-		for (i = (n - 2) / 2; i < n; i--)//从第一个非叶子结点开始调整
+		for (i = (n - 2) / 2; i < n &&i>=0; i--)//从第一个非叶子结点开始调整
 		{
 			AdjustDown(i);
 		}
@@ -42,9 +44,11 @@ public:
 	void AdjustUp(int child)//向上调整算法
 	{
 		int father = (child - 1) / 2;
-		while (father >= 0)
+		Compare Com;
+		while (child >0)
 		{
-			if (!Compare()(heap[father], heap[child]))
+			//if (heap[child]< heap[father])
+			if (!Com(heap[father], heap[child]))
 			{
 				swap(heap[father], heap[child]);
 			}
@@ -55,13 +59,16 @@ public:
 	void AdjustDown(int root)//向下调整算法
 	{
 		int child = root * 2 + 1;
-		while (child <= heap.size())
+		Compare Com;
+		while (child <= heap.size()-1)
 		{
-			if (Compare(heap[child + 1], heap[child]) && child+1<heap.size())
+			//if ((child + 1 <= heap.size() - 1)&&(heap[child+1]<heap[child]))
+			if (child + 1<heap.size() &&Com(heap[child + 1], heap[child]))
 			{
 				child++;
 			}
-			if (Compare(heap[child], heap[root]))
+			//if (heap[child]<heap[root])
+			if (Com(heap[child], heap[root]))
 			{
 				swap(heap[child], heap[root]);
 			}
@@ -115,7 +122,6 @@ public:
 		}
 		cout << endl;
 	}
-
 
 private:
 	vector<int> heap;
