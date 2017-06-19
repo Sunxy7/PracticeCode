@@ -79,22 +79,30 @@ public:
 			{
 				parent->_bf--;
 			}
-			else
+			else if(parent->_right==cur)
 			{
 				parent->_bf++;
 			}
-			cur = parent;
-			parent = cur->_parent;
-			//如果不满足AVL树的性质，则旋转调整
-			if (cur->_bf == -2)
+			//根据平衡因子判断是否需要再调整祖先节点的平衡因子或调整树
+			if (parent->_bf == 0)
 			{
-				if (cur->_left->_bf == -1)
+				break;
+			}
+			else if (parent->_bf == 1 || parent->_bf == -1)
+			{
+				cur = parent;
+				parent = cur->_parent;
+			}
+			//如果不满足AVL树的性质，则旋转调整
+			else if (parent->_bf == -2)
+			{
+				if (parent->_left->_bf == -1)
 				{
-					RotateR(cur->_left);//向右单旋
+					RotateR(parent->_left);//向右单旋
 				}
-				else if(cur->_left->_bf ==1)
+				else if(parent->_left->_bf ==1)
 				{
-					RotateLR(cur->_left);//左右双旋，先向左再向右旋
+					RotateLR(parent->_left);//左右双旋(先左单旋再向右单旋)
 				}
 				else
 				{
@@ -102,15 +110,15 @@ public:
 					return false;
 				}
 			}
-			else if (cur->_bf == 2)
+			else if (parent->_bf == 2)
 			{
-				if (cur->_right->_bf == 1)
+				if (parent->_right->_bf == 1)
 				{
-					RotateL(cur->_right);//向左单旋
+					RotateL(parent->_right);//向左单旋
 				}
-				else if(cur->_right->_bf==-1)
+				else if(parent->_right->_bf==-1)
 				{
-					RotateRL(cur->_right);//右左双旋
+					RotateRL(parent->_right);//右左双旋(先右单旋，再左单旋)
 				}
 				else
 				{
@@ -125,16 +133,25 @@ public:
 			}
 		}
 	}
+	void InOrder()
+	{
+		_InOrder(_root);
+		cout << endl;
+	}
 protected:
 	void RotateL(Node * root)//向左单旋
 	{
 		Node *parent = root->_parent;
 		Node *subL = root->_left;
 		parent->_right = subL;
-		subL->_parent = parent;
+		if (subL)
+		{
+			subL->_parent = parent;
+		}
 		if (parent == _root)
 		{
 			_root = root;
+			root->_parent = NULL;
 		}
 		else
 		{
@@ -150,17 +167,25 @@ protected:
 		}
 		root->_left = parent;
 		parent->_parent = root;
-		parent->_bf = root->_bf = subL->_bf = 0;
+		if (subL)
+		{
+			subL->_bf = 0;
+		}
+		parent->_bf = root->_bf = 0;
 	}
 	void RotateR(Node * root)//向右单旋
 	{
 		Node * parent = root->_parent;
 		Node * subR = root->_right;
 		parent->_left = subR;
-		subR->_parent = parent;
+		if (subR)
+		{
+			subR->_parent = parent;
+		}
 		if (parent == _root)
 		{
 			_root = root;
+			root->_parent = NULL;
 		}
 		else
 		{
@@ -176,17 +201,77 @@ protected:
 		}
 		root->_right = parent;
 		parent->_parent = root;
-		root->_bf = parent->_bf = subR->_bf = 0;
+		if (subR)
+		{
+			subR->_bf = 0;
+		}
+		root->_bf = parent->_bf = 0;
 	}
 	void RotateLR(Node * root)//左右双旋
 	{
-		RotateL(root);
-		RotateR(root);
+		RotateL(root->_right);
+		RotateR(root->_parent);
+		Node* cur = root->_parent;
+		if (cur->_bf == 0)
+		{
+			cur->_left->_bf = 0;
+			cur->_right->_bf = 0;
+		}
+		else if(cur->_bf == 1)
+		{
+			cur->_bf = 0;
+			cur->_left->_bf = -1;
+			cur->_right->_bf = 0;
+		}
+		else if (cur->_bf == -1)
+		{
+			cur->_bf = 0;
+			cur->_left->_bf = 0;
+			cur->_right->_bf = 1;
+		}
+		else
+		{
+			printf("平衡因子异常\n");
+			return;
+		}
 	}
 	void RotateRL(Node*root)
 	{
-		RotateR(root);
-		RotateL(root);
+		RotateR(root->_left);
+		RotateL(root->_parent);
+		Node* cur = root->_parent;
+		if (cur->_bf == 0)
+		{
+			cur->_left->_bf = 0;
+			cur->_right->_bf = 0;
+		}
+		else if (cur->_bf == 1)
+		{
+			cur->_bf = 0;
+			cur->_left->_bf = -1;
+			cur->_right->_bf = 0;
+		}
+		else if (cur->_bf == -1)
+		{
+			cur->_bf = 0;
+			cur->_left->_bf = 0;
+			cur->_right->_bf = 1;
+		}
+		else
+		{
+			printf("平衡因子异常\n");
+			return;
+		}
+	}
+	void _InOrder(Node * root)
+	{
+		if (root == NULL)
+		{
+			return;
+		}
+		_InOrder(root->_left);
+		cout << "key:" << root->_key << "value:" << root->_value<<" ";
+		_InOrder(root->_right);
 	}
 private:
 	Node * _root;
