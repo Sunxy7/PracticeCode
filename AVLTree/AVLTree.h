@@ -133,7 +133,19 @@ public:
 			}
 		}
 	}
-	void InOrder()
+	int Height()//求二叉树的高度
+	{
+		return _Height(_root);
+	}
+	int Height(Node * root)
+	{
+		return _Height(root);
+	}
+	bool IsBlance()//判断一棵二叉树是否是平衡二叉树
+	{
+		return _IsBlance(_root);
+	}
+	void InOrder()//中序遍历树
 	{
 		_InOrder(_root);
 		cout << endl;
@@ -237,7 +249,7 @@ protected:
 	}
 	void RotateRL(Node*root)
 	{
-		RotateR(root->_left);
+		RotateR(root->_left); 
 		RotateL(root->_parent);
 		Node* cur = root->_parent;
 		if (cur->_bf == 0)
@@ -262,6 +274,31 @@ protected:
 			printf("平衡因子异常\n");
 			return;
 		}
+	}
+	int _Height(Node * root)
+	{
+		if (root == NULL)
+		{
+			return 0;
+		}
+		int left = _Height(root->_left) + 1;
+		int right = _Height(root->_right) + 1;
+		return left > right ? left : right;
+	}
+	bool _IsBlance(Node * root)
+	{
+		if (root == NULL)
+		{
+			return true;
+		}
+		int left = Height(root->_left);
+		int right = Height(root->_right);
+		if (abs(right - left) != abs(root->_bf))
+		{
+			cout << "平衡因子错误\n" << endl;
+			return false;
+		}
+		return (abs(right - left) < 2) && _IsBlance(root->_left) && _IsBlance(root->_right);
 	}
 	void _InOrder(Node * root)
 	{

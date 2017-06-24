@@ -8,8 +8,10 @@ int main()
 	for (int i = 0; i < sizeof(arr) / sizeof(arr[0]); i++)
 	{
  	 	t1.Insert(arr[i], i);
+		cout << "is blance£¿ £º" << t1.IsBlance() << endl;
 	}
 	t1.InOrder();
+	t1.Height();
 	system("pause");
 	return 0;
 }
